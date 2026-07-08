@@ -71,16 +71,24 @@ router.post("/register", async (req, res) => {
       });
     }
 
-  const info = await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "Your QuizMaster verification code",
-      text: `Your verification code is ${otpCode}. It expires in 10 minutes.`,
-    });
-
-    console.log("Email sent:", info.messageId, info.response);
-
+    // Respond immediately — don't let a slow/flaky SMTP connection
+    // hang or time out the HTTP request itself
     res.json({ msg: "Verification code sent", email });
+
+    // Send the email after responding
+    transporter
+      .sendMail({
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: "Your QuizMaster verification code",
+        text: `Your verification code is ${otpCode}. It expires in 10 minutes.`,
+      })
+      .then((info) => {
+        console.log("Email sent:", info.messageId, info.response);
+      })
+      .catch((err) => {
+        console.error("Email send failed:", err.message);
+      });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -176,6 +184,7 @@ router.post("/google", async (req, res) => {
   }
 });
 
+// FORGOT PASSWORD — sends a reset code
 router.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
 
@@ -197,19 +206,28 @@ router.post("/forgot-password", async (req, res) => {
     user.resetCodeExpiry = resetCodeExpiry;
     await user.save();
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "Your QuizMaster password reset code",
-      text: `Your password reset code is ${resetCode}. It expires in 10 minutes.`,
-    });
-
+    // Respond immediately, send email in the background
     res.json({ msg: "If that email exists, a reset code has been sent" });
+
+    transporter
+      .sendMail({
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: "Your QuizMaster password reset code",
+        text: `Your password reset code is ${resetCode}. It expires in 10 minutes.`,
+      })
+      .then((info) => {
+        console.log("Reset email sent:", info.messageId, info.response);
+      })
+      .catch((err) => {
+        console.error("Reset email send failed:", err.message);
+      });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
+// RESET PASSWORD — verifies code, sets new password
 router.post("/reset-password", async (req, res) => {
   const { email, code, newPassword } = req.body;
 
