@@ -10,7 +10,10 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  family: 4, // force IPv4, avoids ENETUNREACH on hosts without IPv6 outbound
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_APP_PASSWORD,
