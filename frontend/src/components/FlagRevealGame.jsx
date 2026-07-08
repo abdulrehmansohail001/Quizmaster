@@ -189,7 +189,7 @@ export default function FlagRevealGame({ userId, onBack }) {
                   style={{
                     background: revealedSet.has(i) || gameState !== "playing"
                       ? "transparent"
-                      : "rgba(17,24,39,0.9)",
+                      : "rgba(17,24,39,1)",
                     borderRadius: "2px",
                     transition: "background 0.5s ease",
                   }}
