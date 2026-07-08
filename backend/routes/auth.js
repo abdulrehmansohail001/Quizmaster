@@ -2,26 +2,13 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 const { OAuth2Client } = require("google-auth-library");
 const User = require("../models/User");
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  family: 4, // force IPv4, avoids ENETUNREACH on hosts without IPv6 outbound
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_APP_PASSWORD,
-  },
-});
-
-console.log("EMAIL_USER:", process.env.EMAIL_USER);
-console.log("Has app password:", !!process.env.EMAIL_APP_PASSWORD);
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString(); // 6 digits
@@ -59,7 +46,6 @@ router.post("/register", async (req, res) => {
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 min
 
     if (user) {
-      // existing but unverified — allow retry with new code/password
       user.password = hashedPassword;
       user.otpCode = otpCode;
       user.otpExpiry = otpExpiry;
@@ -74,20 +60,18 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // Respond immediately — don't let a slow/flaky SMTP connection
-    // hang or time out the HTTP request itself
+    // Respond immediately — email sends in the background
     res.json({ msg: "Verification code sent", email });
 
-    // Send the email after responding
-    transporter
-      .sendMail({
-        from: process.env.EMAIL_USER,
+    resend.emails
+      .send({
+        from: "QuizMaster <onboarding@resend.dev>",
         to: email,
         subject: "Your QuizMaster verification code",
         text: `Your verification code is ${otpCode}. It expires in 10 minutes.`,
       })
-      .then((info) => {
-        console.log("Email sent:", info.messageId, info.response);
+      .then((result) => {
+        console.log("Email sent:", result.data?.id);
       })
       .catch((err) => {
         console.error("Email send failed:", err.message);
@@ -209,18 +193,17 @@ router.post("/forgot-password", async (req, res) => {
     user.resetCodeExpiry = resetCodeExpiry;
     await user.save();
 
-    // Respond immediately, send email in the background
     res.json({ msg: "If that email exists, a reset code has been sent" });
 
-    transporter
-      .sendMail({
-        from: process.env.EMAIL_USER,
+    resend.emails
+      .send({
+        from: "QuizMaster <onboarding@resend.dev>",
         to: email,
         subject: "Your QuizMaster password reset code",
         text: `Your password reset code is ${resetCode}. It expires in 10 minutes.`,
       })
-      .then((info) => {
-        console.log("Reset email sent:", info.messageId, info.response);
+      .then((result) => {
+        console.log("Reset email sent:", result.data?.id);
       })
       .catch((err) => {
         console.error("Reset email send failed:", err.message);
