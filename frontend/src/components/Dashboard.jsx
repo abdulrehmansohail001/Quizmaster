@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 import { styles } from "../styles";
+import logo from "../assets/logo.png";
 
 function Dashboard({ onNavigate, onLogout, userId, username = "" }) {
   const [totalXP, setTotalXP] = useState(0);
@@ -15,7 +16,10 @@ function Dashboard({ onNavigate, onLogout, userId, username = "" }) {
   return (
     <div style={styles.appShell}>
       <div style={styles.glassCard}>
-        <div style={styles.brandLogo}>QuizMaster</div>
+        <div style={{ ...styles.brandLogo, display: "flex", alignItems: "center", gap: "8px" }}>
+          <img src={logo} alt="QuizMaster" style={{ width: "28px", height: "28px" }} />
+          QuizMaster
+        </div>
         <div style={styles.xpBadgeTop}>⭐ {totalXP} XP</div>
 
         <div style={styles.dashboardIconBadge}>📊</div>

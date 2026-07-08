@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import api from "../api";
 import { styles } from "../styles";
+import logo from "../assets/logo.png";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -150,7 +151,10 @@ function AuthScreen({ onLoginSuccess }) {
     return (
       <div style={styles.appShell}>
         <div style={styles.authGlassCard}>
-          <div style={styles.authBrandLogo}>QuizMaster</div>
+          <div style={{ ...styles.authBrandLogo, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+            <img src={logo} alt="QuizMaster" style={{ width: "28px", height: "28px" }} />
+            QuizMaster
+          </div>
           <h1 style={styles.authTitleLg}>Reset Password</h1>
           <p style={styles.authSubtitleLg}>Enter your email to receive a reset code</p>
 
@@ -193,7 +197,10 @@ function AuthScreen({ onLoginSuccess }) {
     return (
       <div style={styles.appShell}>
         <div style={styles.authGlassCard}>
-          <div style={styles.authBrandLogo}>QuizMaster</div>
+          <div style={{ ...styles.authBrandLogo, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+            <img src={logo} alt="QuizMaster" style={{ width: "28px", height: "28px" }} />
+            QuizMaster
+          </div>
           <h1 style={styles.authTitleLg}>Enter New Password</h1>
           <p style={styles.authSubtitleLg}>
             Enter the code sent to<br /><b>{email}</b>
@@ -257,7 +264,10 @@ function AuthScreen({ onLoginSuccess }) {
     return (
       <div style={styles.appShell}>
         <div style={styles.authGlassCard}>
-          <div style={styles.authBrandLogo}>QuizMaster</div>
+          <div style={{ ...styles.authBrandLogo, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+            <img src={logo} alt="QuizMaster" style={{ width: "28px", height: "28px" }} />
+            QuizMaster
+          </div>
           <h1 style={styles.authTitleLg}>Verify Your Email</h1>
           <p style={styles.authSubtitleLg}>
             Enter the 6-digit code sent to<br /><b>{email}</b>
@@ -313,7 +323,10 @@ function AuthScreen({ onLoginSuccess }) {
   return (
     <div style={styles.appShell}>
       <div style={styles.authGlassCard}>
-        <div style={styles.authBrandLogo}>QuizMaster</div>
+        <div style={{ ...styles.authBrandLogo, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+          <img src={logo} alt="QuizMaster" style={{ width: "28px", height: "28px" }} />
+          QuizMaster
+        </div>
         <h1 style={styles.authTitleLg}>
           {isLogin ? "Welcome Back 👋" : "Create Account"}
         </h1>
